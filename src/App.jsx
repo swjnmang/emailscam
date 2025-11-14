@@ -274,7 +274,7 @@ function LoginScreen({ onLogin }) {
 }
 
 // --- NEUE KOMPONENTE: GameOverScreen ---
-function GameOverScreen({ userName, userClass, score, correctCount, totalMails, onDownloadPDF, onReset, failureReason }) { // NEU: failureReason
+function GameOverScreen({ userName, userClass, score, correctCount, totalMails, onDownloadPDF, onReset, onLogout, failureReason }) { // NEU: failureReason
   
   const getFeedbackMessage = () => {
     // Verhindere Division durch Null, falls totalMails 0 ist
@@ -342,7 +342,16 @@ function GameOverScreen({ userName, userClass, score, correctCount, totalMails, 
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg hover:shadow-xl"
           >
             <RefreshCcw size={20} />
-            Neue Runde starten
+            Erneut versuchen
+          </button>
+
+          {/* Neuer Logout-Button: setzt alles zurück inklusive Name/Klasse */}
+          <button
+            onClick={onLogout}
+            className="w-full bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-sm"
+          >
+            <LogIn size={18} />
+            Abmelden / Neu einloggen
           </button>
         </div>
       </div>
@@ -661,6 +670,24 @@ export default function EmailDetectivePro() {
     setUserClass('');
   };
 
+  // Startet eine neue Runde, behält aber den Benutzernamen und die Klasse bei
+  const startNewRound = () => {
+    const shuffled = [...emailData].sort(() => 0.5 - Math.random());
+    const selectedSet = shuffled.slice(0, 15);
+
+    setEmails(selectedSet);
+    setSelectedEmailId(null);
+    setScore(0);
+    setCorrectCount(0);
+    setProcessedCount(0);
+    setFeedback(null);
+    setShowHint(false);
+    setFailureReason(null);
+
+    // Direkt in den Posteingang wechseln (kein erneutes Login)
+    setView('inbox');
+  };
+
   const handleLogin = (name, klasse) => {
     setUserName(name);
     setUserClass(klasse);
@@ -720,7 +747,7 @@ export default function EmailDetectivePro() {
       setSelectedEmailId(null);
     } else {
       setEmails(remainingEmails);
-      setSelectedEmailId(null); // NENormal 0 false false false DE X-NONE X-NONE /* Style Definitions */ table.MsoNormalTable {mso-style-name:"Table Normal"; mso-tstyle-rowband-size:0; mso-tstyle-colband-size:0; mso-style-noshow:yes; mso-style-priority:99; mso-style-parent:""; mso-padding-alt:0cm 5.4pt 0cm 5.4pt; mso-para-margin-top:0cm; mso-para-margin-right:0cm; mso-para-margin-bottom:8.0pt; mso-para-margin-left:0cm; line-height:107%; mso-pagination:widow-orphan; font-size:11.0pt; font-family:"Calibri",sans-serif; mso-ascii-font-family:Calibri; mso-ascii-theme-font:minor-latin; mso-hansi-font-family:Calibri; mso-hansi-theme-font:minor-latin; mso-bidi-font-family:"Times New Roman"; mso-bidi-theme-font:minor-bidi; mso-fareast-language:EN-US;}U: Nach dem Klick auf "Nächste Mail" zur Liste zurückkehren
+      setSelectedEmailId(null); // Zurück zur Liste
     }
   };
 
@@ -806,7 +833,8 @@ export default function EmailDetectivePro() {
         correctCount={correctCount}
         totalMails={processedCount}
         onDownloadPDF={handleDownloadPDF}
-        onReset={resetGame}
+        onReset={startNewRound}
+        onLogout={resetGame}
         failureReason={failureReason} // NEU
       />
     );
