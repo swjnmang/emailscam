@@ -328,7 +328,6 @@ function GameOverScreen({ userName, userClass, score, correctCount, totalMails, 
             </div>
           )}
         </div>
-        </div>
         
         <div className="space-y-3">
           <button 
