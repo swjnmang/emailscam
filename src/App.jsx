@@ -3,6 +3,7 @@ import { Mail, Trash2, Inbox, AlertTriangle, CheckCircle, XCircle, RefreshCcw, S
 // NEUER IMPORT: Diese Bibliothek wird für das PDF-Zertifikat benötigt.
 // Du musst sie in StackBlitz installieren: npm install jspdf
 import jsPDF from 'jspdf';
+import { analyzeEmail, analyzeDomainForPreview } from './utils/analyzeEmail';
 
 // --- ERWEITERTE E-MAIL DATENBANK (Jetzt 20 E-Mails: 10 Legit, 10 Spam) ---
 const emailData = [
@@ -371,7 +372,12 @@ function InboxScreen({
   handleDecision,
   nextEmail,
   setShowHint,
-  handleLinkClick // NEU: Funktion für Link-Klick
+  handleLinkClick, // NEU: Funktion für Link-Klick
+  urlPreview,
+  setUrlPreview,
+  onConfirmLinkClick,
+  keywordTooltip,
+  setKeywordTooltip
 }) {
   const selectedEmail = emails.find(e => e.id === selectedEmailId);
 
@@ -522,24 +528,42 @@ function InboxScreen({
                 {/* NEUE LOGIK ZUM ERKENNEN VON "FALLEN-LINKS" */}
                 {selectedEmail.body.split('\n').map((line, i) => {
                   const triggerText = selectedEmail.linkTriggerText;
-                  
+
+                  // simple keyword highlighting
+                  const keywords = ['sofort','sperrung','passwort','zahlung','gebühr','konto','verifizieren','kreditkart','gutschein','dringend'];
+
+                  const renderWithHighlights = (text) => {
+                    const parts = text.split(/(\s+)/);
+                    return parts.map((part, idx) => {
+                      const clean = part.toLowerCase().replace(/[^a-zäöüß0-9]/g,'');
+                      if (keywords.includes(clean)) {
+                        return (
+                          <button key={idx} onClick={() => setKeywordTooltip({title: clean, message: `Das Wort "${clean}" ist ein Warnsignal: es erzeugt Druck oder fordert zu Aktionen auf.`})} className="underline text-yellow-800 font-semibold mr-1">
+                            {part}
+                          </button>
+                        );
+                      }
+                      return <span key={idx}>{part}</span>;
+                    });
+                  };
+
                   if (triggerText && line.includes(triggerText)) {
                     const parts = line.split(triggerText);
                     return (
                       <p key={i} className="mb-4 min-h-[1em]">
-                        {parts[0]}
+                        {renderWithHighlights(parts[0])}
                         <a
                           onClick={handleLinkClick}
-                          className="text-blue-600 underline hover:text-red-600 font-bold cursor-pointer transition-colors"
+                          className="text-blue-600 underline hover:text-red-600 font-bold cursor-pointer transition-colors mx-1"
                         >
                           {triggerText}
                         </a>
-                        {parts[1]}
+                        {renderWithHighlights(parts[1])}
                       </p>
                     );
                   }
                   return (
-                    <p key={i} className="mb-4 min-h-[1em]">{line}</p>
+                    <p key={i} className="mb-4 min-h-[1em]">{renderWithHighlights(line)}</p>
                   );
                 })}
                 
@@ -550,6 +574,39 @@ function InboxScreen({
                             [Hier klicken zum Shop]
                         </span>
                     </div>
+                )}
+
+                {/* Keyword tooltip area */}
+                {keywordTooltip && (
+                  <div className="mt-4 p-3 bg-yellow-50 border border-yellow-100 rounded text-sm text-yellow-800">
+                    <div className="font-bold">Hinweis: {keywordTooltip.title}</div>
+                    <div className="text-xs mt-1">{keywordTooltip.message}</div>
+                    <div className="text-right"><button onClick={() => setKeywordTooltip(null)} className="text-blue-600 underline text-sm">Schließen</button></div>
+                  </div>
+                )}
+
+                {/* URL Preview Modal */}
+                {urlPreview && urlPreview.emailId === selectedEmail.id && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-lg">
+                      <h3 className="font-bold text-lg mb-2">Link-Vorschau</h3>
+                      <p className="text-sm text-slate-600 mb-4">Ziel-URL (sicher angezeigt):</p>
+                      <div className="bg-slate-50 border border-slate-200 p-3 rounded mb-4 break-all">
+                        <div className="font-mono text-sm text-slate-700">{urlPreview.url}</div>
+                        <div className="text-xs text-slate-500 mt-1">Domain: {urlPreview.domain || '—'}</div>
+                      </div>
+                      <div className="space-y-2 mb-4">
+                        {urlPreview.flags.length === 0 && <div className="text-sm text-slate-500">Keine offensichtlichen Probleme erkannt.</div>}
+                        {urlPreview.flags.map((f, idx) => (
+                          <div key={idx} className="text-sm text-yellow-800 bg-yellow-50 border border-yellow-100 rounded p-2">{f.title}: {f.message}</div>
+                        ))}
+                      </div>
+                      <div className="flex gap-3 justify-end">
+                        <button onClick={() => setUrlPreview(null)} className="px-4 py-2 rounded bg-white border">Zurück</button>
+                        <button onClick={() => onConfirmLinkClick(urlPreview.emailId)} className="px-4 py-2 rounded bg-red-600 text-white">Weiter (als Link klicken)</button>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -645,6 +702,8 @@ export default function EmailDetectivePro() {
   const [feedback, setFeedback] = useState(null); 
   const [showHint, setShowHint] = useState(false);
   const [failureReason, setFailureReason] = useState(null); // NEU: Grund für sofortiges Scheitern
+  const [urlPreview, setUrlPreview] = useState(null); // {url, domain, flags, emailId}
+  const [keywordTooltip, setKeywordTooltip] = useState(null); // {text}
 
   useEffect(() => {
     // Startet das Spiel nicht mehr automatisch, wartet auf Login
@@ -712,10 +771,10 @@ export default function EmailDetectivePro() {
   const handleDecision = (decision) => {
     const currentEmail = emails.find(e => e.id === selectedEmailId);
     if (!currentEmail) return;
+    const isCorrect = (decision === 'keep' && currentEmail.type === 'legit') || (decision === 'spam' && currentEmail.type === 'spam');
 
-    let isCorrect = false;
-    if (decision === 'keep' && currentEmail.type === 'legit') isCorrect = true;
-    if (decision === 'spam' && currentEmail.type === 'spam') isCorrect = true;
+    // Analyse-Gründe fürs Feedback erstellen
+    const reasons = analyzeEmail(currentEmail, userName);
 
     if (isCorrect) {
       setScore(score + 100);
@@ -723,14 +782,16 @@ export default function EmailDetectivePro() {
       setFeedback({
         type: 'success',
         title: 'Hervorragend!',
-        message: "Richtig erkannt. " + currentEmail.explanation
+        message: "Richtig erkannt. " + currentEmail.explanation,
+        reasons
       });
     } else {
       setScore(Math.max(0, score - 50));
       setFeedback({
         type: 'error',
         title: 'Vorsicht!',
-        message: "Falsch entschieden. " + currentEmail.explanation
+        message: "Falsch entschieden. " + currentEmail.explanation,
+        reasons
       });
     }
     setProcessedCount(processedCount + 1); // NEU
@@ -755,18 +816,11 @@ export default function EmailDetectivePro() {
   const handleLinkClick = () => {
     const currentEmail = emails.find(e => e.id === selectedEmailId);
     if (!currentEmail) return;
-
-    setScore(0); // Punkte sind weg
-    setCorrectCount(0); // Zählung zurücksetzen
-    setProcessedCount(processedCount + 1); // Diese Mail zählt als (falsch) bearbeitet
-    
-    // Setzt den Grund für das Scheitern
-    setFailureReason(
-      'Du hast auf einen Phishing-Link geklickt! In der echten Welt könnten deine Daten jetzt gestohlen sein. ' + currentEmail.explanation
-    );
-    
-    // Sofort zum Game Over Bildschirm
-    setView('gameover');
+    // Statt direkt Game Over zu erzwingen:zeige eine sichere Vorschau des Ziels
+    const domain = (currentEmail.senderAddress || '').split('@')[1] || '';
+    const fakeUrl = `https://${domain || 'example.com'}/...`;
+    const flags = analyzeDomainForPreview(domain);
+    setUrlPreview({ url: fakeUrl, domain, flags, emailId: currentEmail.id });
   };
 
   const handleDownloadPDF = () => {
@@ -816,6 +870,21 @@ export default function EmailDetectivePro() {
     doc.save(`Zertifikat_${userName.replace(/ /g, '_')}_Email-Detektiv.pdf`);
   };
 
+  const onConfirmLinkClick = (emailId) => {
+    const currentEmail = emails.find(e => e.id === emailId);
+    if (!currentEmail) return;
+
+    setUrlPreview(null);
+    setScore(0); // Punkte sind weg
+    setCorrectCount(0); // Zählung zurücksetzen
+    setProcessedCount(processedCount + 1); // Diese Mail zählt als (falsch) bearbeitet
+
+    setFailureReason(
+      'Du hast auf einen Phishing-Link geklickt! In der echten Welt könnten deine Daten jetzt gestohlen sein. ' + currentEmail.explanation
+    );
+    setView('gameover');
+  };
+
 
   // === Der "Router" ===
   // Entscheidet, welche Ansicht (Login, Inbox, GameOver) gezeigt wird
@@ -853,6 +922,11 @@ export default function EmailDetectivePro() {
         nextEmail={nextEmail}
         setShowHint={setShowHint}
         handleLinkClick={handleLinkClick} // NEU
+        urlPreview={urlPreview}
+        setUrlPreview={setUrlPreview}
+        onConfirmLinkClick={onConfirmLinkClick}
+        keywordTooltip={keywordTooltip}
+        setKeywordTooltip={setKeywordTooltip}
       />
     );
   }
