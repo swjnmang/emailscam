@@ -23,7 +23,7 @@ const emailData = [
     senderAddress: "newsletter@sneaker-world-shop.de",
     subject: "Nur heute: 20% auf alles!",
     date: "Vorgestern",
-    body: "Hey Sneaker-Fan,\n\nder Sommer kommt und wir räumen das Lager. Sicher dir jetzt die besten Modelle.\n\nHier klicken zum Shop.\n\n(Wenn du keine Mails mehr willst, klicke auf Abbestellen)",
+    body: "Hey Sneaker-Fan,\n\nder Sommer kommt und wir räumen das Lager. Sicher dir jetzt die besten Modelle.\n\n[Hier klicken zum Shop]\n\n(Wenn du keine Mails mehr willst, klicke auf Abbestellen)",
     type: "legit",
     explanation: "Werbung, aber seriös (.de Domain, Abmeldelink vorhanden)."
   },
@@ -117,6 +117,7 @@ const emailData = [
     date: "Heute, 09:15",
     body: "Sehr geehrter Kunde,\n\nwir haben verdächtige Aktivitäten festgestellt. Klicken Sie HIER sofort, um Ihre Daten zu bestätigen, sonst wird das Konto gelöscht!\n\nMit freundlichen Grüßen\nPayPal Team",
     type: "spam",
+    linkTriggerText: "Klicken Sie HIER sofort", // NEU: Der "Fallen"-Link Text
     explanation: "Phishing! Achte auf die Endung '.cn' (China) statt '.com'. Banken drohen nie mit sofortiger Löschung."
   },
   {
@@ -125,8 +126,9 @@ const emailData = [
     senderAddress: "info@dhl-track-delivery-status.net",
     subject: "Ihr Paket konnte nicht zugestellt werden",
     date: "Heute, 10:05",
-    body: "Hallo,\n\nihr Paket DE-49281 liegt im Verteilzentrum. Es fehlt eine Zollgebühr von 2,99€. \n\nBitte bezahlen Sie den Betrag über den Link unten.\n\n[Link zur Zahlung]",
+    body: "Hallo,\n\nihr Paket DE-49281 liegt im Verteilzentrum. Es fehlt eine Zollgebühr von 2,99€. \n\nBitte bezahlen Sie den Betrag über den [Link zur Zahlung].",
     type: "spam",
+    linkTriggerText: "[Link zur Zahlung]", // NEU
     explanation: "Klassischer Paket-Betrug. Die URL 'dhl-track-delivery-status.net' gehört nicht zu DHL."
   },
   {
@@ -137,6 +139,7 @@ const emailData = [
     date: "Heute, 08:15",
     body: "Guten Morgen,\n\nich sitze gerade in einer wichtigen Konferenz und kann nicht telefonieren. Ich brauche einen Gefallen: Könntest du für mich kurzfristig Amazon-Gutscheine im Wert von 100€ besorgen?\n\nBitte antworte schnell.\n\nDr. K. Schmidt",
     type: "spam",
+    // Kein Link-Text hier, die Antwort per Mail ist die Falle
     explanation: "Der 'CEO-Fraud'. Der Name stimmt, aber die Adresse ist eine private Gmail-Adresse, nicht die Schul-Adresse!"
   },
   {
@@ -147,6 +150,7 @@ const emailData = [
     date: "Gestern, 23:45",
     body: "Hallo User,\n\njemand hat dein Konto wegen Urheberrechtsverletzung gemeldt. Wenn du das nicht warst, musst du dich verifizieren.\n\nKlicke hier und gib dein Passwort ein, um die Löschung zu verhindern.\n\nMeta Security Team",
     type: "spam",
+    linkTriggerText: "Klicke hier", // NEU
     explanation: "Druckaufbau und Drohung. Die Domain '.tk' (Tokelau) wird oft für Gratis-Domains und Spam genutzt."
   },
   {
@@ -157,6 +161,7 @@ const emailData = [
     date: "Heute, 12:00",
     body: "ACHTUNG!\n\nAuf Ihrem Computer wurden 5 Viren gefunden. Ihre Daten sind in Gefahr.\n\nRufen Sie SOFORT den Microsoft Support an unter: 0800-123-FAKE-99\n\nSchalten Sie den Computer nicht aus!",
     type: "spam",
+    // Kein Link, die Telefonnummer ist die Falle
     explanation: "Der 'Tech Support Scam'. Microsoft schickt keine E-Mails über Virenfunde."
   },
   {
@@ -167,6 +172,7 @@ const emailData = [
     date: "Heute, 04:30",
     body: "Hallo,\n\nleider konnten wir den Mitgliedsbeitrag nicht abbuchen. Dein Abo ist pausiert.\n\nBitte gib hier deine Kreditkartendaten erneut ein.\n\nDein Streaming Team",
     type: "spam",
+    linkTriggerText: "gib hier deine Kreditkartendaten erneut ein", // NEU
     explanation: "Typosquatting: Schau genau hin! Da steht 'netfl1x' (mit Eins statt I)."
   },
   {
@@ -177,6 +183,7 @@ const emailData = [
     date: "Gestern",
     body: "Um Krypto zu feiern, verschenke ich 5000 BTC. \n\nSende mir 0.1 BTC an folgende Wallet und ich schicke dir 0.2 BTC sofort zurück!\n\nNur für kurze Zeit!",
     type: "spam",
+    linkTriggerText: "an folgende Wallet", // NEU
     explanation: "Niemand verschenkt Geld. Die Domain .xyz ist typisch für Spam."
   },
   {
@@ -187,6 +194,7 @@ const emailData = [
     date: "Heute, 02:15",
     body: "Hi Süßer,\n\nich habe dein Profil gesehen und finde dich toll. Hast du Lust auf ein Treffen heute Abend?\n\nSchreib mir hier zurück!\nKuss, Lisa",
     type: "spam",
+    linkTriggerText: "Schreib mir hier zurück!", // NEU
     explanation: "Bot-Spam. Unbekannte Absender mit Domains wie .biz wollen dich auf kostenpflichtige Portale locken."
   },
   {
@@ -197,6 +205,7 @@ const emailData = [
     date: "Gestern, 18:00",
     body: "Herzlichen Glückwunsch!\n\nIhre E-Mail-Adresse wurde für den Hauptgewinn gezogen.\n\nUm den Gewinn zu erhalten, überweisen Sie bitte 100€ Bearbeitungsgebühr an das angegebene Konto.\n\nIhr Lotto-Team",
     type: "spam",
+    linkTriggerText: "an das angegebene Konto", // NEU
     explanation: "Betrug! Man muss nie für einen echten Gewinn 'Gebühren' im Voraus zahlen. Domain .info ist verdächtig."
   },
   {
@@ -207,6 +216,7 @@ const emailData = [
     date: "Heute, 03:20",
     body: "Hallo,\n\nIhr Speicherplatz ist fast aufgebraucht. Holen Sie sich 2TB gratis, indem Sie sich jetzt einloggen und Ihr Konto verifizieren.\n\n[Konto verifizieren]",
     type: "spam",
+    linkTriggerText: "[Konto verifizieren]", // NEU
     explanation: "Phishing. Die Domain endet auf '.com.co' (Kolumbien), nicht nur '.com'. Sie wollen dein Dropbox-Passwort stehlen."
   }
 ];
@@ -264,7 +274,7 @@ function LoginScreen({ onLogin }) {
 }
 
 // --- NEUE KOMPONENTE: GameOverScreen ---
-function GameOverScreen({ userName, userClass, score, correctCount, totalMails, onDownloadPDF, onReset }) {
+function GameOverScreen({ userName, userClass, score, correctCount, totalMails, onDownloadPDF, onReset, failureReason }) { // NEU: failureReason
   
   const getFeedbackMessage = () => {
     // Verhindere Division durch Null, falls totalMails 0 ist
@@ -280,12 +290,30 @@ function GameOverScreen({ userName, userClass, score, correctCount, totalMails, 
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans">
       <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center animate-in zoom-in duration-300">
         <div className="mb-6 flex justify-center">
-          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center text-green-600 shadow-inner">
-            <Award size={48} fill="currentColor" />
+          <div className={`w-24 h-24 rounded-full flex items-center justify-center shadow-inner ${
+            failureReason ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
+          }`}>
+            {failureReason ? <XCircle size={48} /> : <Award size={48} fill="currentColor" />}
           </div>
         </div>
-        <h2 className="text-3xl font-bold text-slate-800 mb-2">Posteingang bereinigt!</h2>
-        <p className="text-slate-500 mb-6">Gute Arbeit, {userName}. Hier ist dein Ergebnis:</p>
+        <h2 className="text-3xl font-bold text-slate-800 mb-2">
+          {failureReason ? "Training fehlgeschlagen!" : "Posteingang bereinigt!"}
+        </h2>
+        
+        {/* Angepasste Nachrichten */}
+        {!failureReason ? (
+          <p className="text-slate-500 mb-6">Gute Arbeit, {userName}. Hier ist dein Ergebnis:</p>
+        ) : (
+          <p className="text-slate-500 mb-6">Schade, {userName}. Das Training wurde vorzeitig beendet.</p>
+        )}
+
+        {/* NEU: Anzeige des Fehlergrunds */}
+        {failureReason && (
+          <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg mb-6 text-left">
+            <h3 className="font-bold text-lg">Test nicht bestanden!</h3>
+            <p className="mt-2 text-sm">{failureReason}</p>
+          </div>
+        )}
         
         <div className="bg-slate-50 rounded-xl p-6 mb-8 border border-slate-100">
           <div className="text-sm text-slate-500 uppercase tracking-wider font-semibold mb-1">Ergebnis</div>
@@ -293,9 +321,13 @@ function GameOverScreen({ userName, userClass, score, correctCount, totalMails, 
             {correctCount} <span className="text-3xl text-slate-400">/ {totalMails}</span>
           </div>
           <div className="text-lg text-slate-600 mt-2">Korrekt erkannt</div>
-          <div className="text-sm text-slate-500 mt-4 font-medium px-4">
-              "{getFeedbackMessage()}"
-          </div>
+          
+          {!failureReason && (
+            <div className="text-sm text-slate-500 mt-4 font-medium px-4">
+                "{getFeedbackMessage()}"
+            </div>
+          )}
+        </div>
         </div>
         
         <div className="space-y-3">
@@ -330,7 +362,8 @@ function InboxScreen({
   setSelectedEmailId,
   handleDecision,
   nextEmail,
-  setShowHint
+  setShowHint,
+  handleLinkClick // NEU: Funktion für Link-Klick
 }) {
   const selectedEmail = emails.find(e => e.id === selectedEmailId);
 
@@ -478,13 +511,35 @@ function InboxScreen({
 
               {/* Email Body */}
               <div className="flex-1 p-6 md:p-10 overflow-y-auto bg-white m-0 md:m-6 md:rounded-lg md:shadow-sm md:border border-slate-200 font-serif text-lg leading-relaxed text-slate-800">
-                {selectedEmail.body.split('\n').map((line, i) => (
+                {/* NEUE LOGIK ZUM ERKENNEN VON "FALLEN-LINKS" */}
+                {selectedEmail.body.split('\n').map((line, i) => {
+                  const triggerText = selectedEmail.linkTriggerText;
+                  
+                  if (triggerText && line.includes(triggerText)) {
+                    const parts = line.split(triggerText);
+                    return (
+                      <p key={i} className="mb-4 min-h-[1em]">
+                        {parts[0]}
+                        <a
+                          onClick={handleLinkClick}
+                          className="text-blue-600 underline hover:text-red-600 font-bold cursor-pointer transition-colors"
+                        >
+                          {triggerText}
+                        </a>
+                        {parts[1]}
+                      </p>
+                    );
+                  }
+                  return (
                     <p key={i} className="mb-4 min-h-[1em]">{line}</p>
-                ))}
-                {(selectedEmail.type === 'spam' || selectedEmail.id === 104) && (
-                    <div className="mt-8 p-4 bg-slate-50 border border-slate-200 rounded text-center cursor-not-allowed opacity-80 hover:opacity-100">
-                        <span className="text-blue-600 underline font-sans text-sm font-medium">
-                            [Hier wäre ein verdächtiger Link]
+                  );
+                })}
+                
+                {/* NEUE Logik für den *seriösen* Link (Newsletter) */}
+                {selectedEmail.id === 104 && (
+                    <div className="mt-8 p-4 bg-slate-50 border border-slate-200 rounded text-center">
+                        <span className="text-blue-600 underline font-sans text-sm font-medium cursor-pointer">
+                            [Hier klicken zum Shop]
                         </span>
                     </div>
                 )}
@@ -581,6 +636,7 @@ export default function EmailDetectivePro() {
   const [processedCount, setProcessedCount] = useState(0); // NEU: Zählt alle bearbeiteten Mails
   const [feedback, setFeedback] = useState(null); 
   const [showHint, setShowHint] = useState(false);
+  const [failureReason, setFailureReason] = useState(null); // NEU: Grund für sofortiges Scheitern
 
   useEffect(() => {
     // Startet das Spiel nicht mehr automatisch, wartet auf Login
@@ -598,6 +654,7 @@ export default function EmailDetectivePro() {
     setProcessedCount(0); // NEU
     setFeedback(null);
     setShowHint(false);
+    setFailureReason(null); // NEU
     
     // Geht zurück zum Login-Bildschirm
     setView('login');
@@ -620,6 +677,7 @@ export default function EmailDetectivePro() {
     setProcessedCount(0);
     setFeedback(null);
     setShowHint(false);
+    setFailureReason(null); // NEU
     
     // Zum Posteingang wechseln
     setView('inbox');
@@ -667,6 +725,24 @@ export default function EmailDetectivePro() {
     }
   };
 
+  // NEUE FUNKTION: Wird aufgerufen, wenn ein "Fallen"-Link geklickt wird
+  const handleLinkClick = () => {
+    const currentEmail = emails.find(e => e.id === selectedEmailId);
+    if (!currentEmail) return;
+
+    setScore(0); // Punkte sind weg
+    setCorrectCount(0); // Zählung zurücksetzen
+    setProcessedCount(processedCount + 1); // Diese Mail zählt als (falsch) bearbeitet
+    
+    // Setzt den Grund für das Scheitern
+    setFailureReason(
+      'Du hast auf einen Phishing-Link geklickt! In der echten Welt könnten deine Daten jetzt gestohlen sein. ' + currentEmail.explanation
+    );
+    
+    // Sofort zum Game Over Bildschirm
+    setView('gameover');
+  };
+
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     
@@ -690,12 +766,25 @@ export default function EmailDetectivePro() {
     doc.text(`- Korrekt erkannt: ${correctCount} von ${processedCount} E-Mails`, 20, 80);
     doc.text(`- Endpunktzahl: ${score}`, 20, 90);
 
+    // NEU: Fügt den Fehlergrund hinzu, falls vorhanden
+    if (failureReason) {
+      doc.setFontSize(12);
+      doc.setTextColor(255, 0, 0); // Rot
+      doc.text("Status: Nicht bestanden (Link geklickt)", 20, 100);
+      doc.setTextColor(0, 0, 0); // Schwarz
+    } else {
+      doc.setFontSize(12);
+      doc.setTextColor(0, 128, 0); // Grün
+      doc.text("Status: Bestanden", 20, 100);
+      doc.setTextColor(0, 0, 0); // Schwarz
+    }
+
     // Datum
     const date = new Date();
     const dateStr = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
     doc.setFontSize(10);
-    doc.text(`Ausgestellt am: ${dateStr}`, 20, 110);
-    doc.text(`(c) Jonathan Mangold`, 20, 115);
+    doc.text(`Ausgestellt am: ${dateStr}`, 20, 120); // Y-Position angepasst
+    doc.text(`(c) Jonathan Mangold`, 20, 125); // Y-Position angepasst
 
 
     doc.save(`Zertifikat_${userName.replace(/ /g, '_')}_Email-Detektiv.pdf`);
@@ -719,6 +808,7 @@ export default function EmailDetectivePro() {
         totalMails={processedCount}
         onDownloadPDF={handleDownloadPDF}
         onReset={resetGame}
+        failureReason={failureReason} // NEU
       />
     );
   }
@@ -735,6 +825,7 @@ export default function EmailDetectivePro() {
         handleDecision={handleDecision}
         nextEmail={nextEmail}
         setShowHint={setShowHint}
+        handleLinkClick={handleLinkClick} // NEU
       />
     );
   }
